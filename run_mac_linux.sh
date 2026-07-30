@@ -1,7 +1,8 @@
-#!/usr/bin/env bash
-set -e
+#!/usr/bin/env sh
+set -eu
 cd "$(dirname "$0")"
 python3 -m venv .venv
-source .venv/bin/activate
+. .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-python app.py
+waitress-serve --listen=127.0.0.1:5000 wsgi:app
