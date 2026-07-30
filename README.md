@@ -1,37 +1,43 @@
-# UA Admission Intelligence 1.0
+# UA Admission Intelligence
 
-Ukrayna üniversite aday listelerinde aday sırası, öncelik yapısı ve bütçe/kontrat olasılığı analizi yapan yerel web uygulaması.
+[![CI](https://github.com/sszul/UA-Admission-Intelligence/actions/workflows/tests.yml/badge.svg)](https://github.com/sszul/UA-Admission-Intelligence/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/sszul/UA-Admission-Intelligence/actions/workflows/codeql.yml/badge.svg)](https://github.com/sszul/UA-Admission-Intelligence/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 
-## Temel özellikler
+Ukrayna üniversite aday listelerinde aday sırası, öncelik yapısı ve bütçe/kontrat olasılığı analizi yapan yerel Flask uygulaması.
+
+> **Önemli:** Uygulama resmî yerleştirme sonucu üretmez. Sonuçlar mevcut liste ve açıkça belgelenmiş varsayımlar üzerinden hesaplanan istatistiksel senaryolardır.
+
+## Özellikler
 
 - XLSX ve CSV yükleme
 - İlk satırlarda açıklama bulunan Excel dosyalarında otomatik başlık tespiti
-- LPNU tablo URL'sinden veri alma
-- Ukraynaca, Türkçe ve İngilizce sütun adlarını otomatik eşleme
-- Aday adı, puan, öncelik, kontrat işareti ve başvuru durumu analizi
+- Ukraynaca, Türkçe ve İngilizce sütun adlarını eşleme
+- İzin verilen LPNU tablo URL'lerinden veri alma
+- Aday sırası, puanı, önceliği, kontrat işareti ve durum analizi
 - 100–100.000 koşuluk Monte Carlo simülasyonu
 - Bütçe, kontrat ve dışarıda kalma olasılıkları
 - Kırmızı/sarı/yeşil rakip sınıflaması
 - SQLite analiz geçmişi
 - CSV, JSON ve biçimlendirilmiş XLSX raporları
-- Windows tek tık başlatıcı, Docker ve GitHub Actions
+- Windows başlatma günlüğü, Docker, CI, CodeQL ve Dependabot
 
-> Uygulama resmî yerleştirme sonucu üretmez. Sonuçlar, mevcut listeye dayalı istatistiksel senaryo tahminidir.
+## Hızlı başlangıç — Windows
 
-## Windows kurulumu
-
-1. Python 3.11 veya daha yenisini kurun. Kurulumda **Add Python to PATH** seçeneğini işaretleyin.
-2. ZIP dosyasını tamamen çıkarın.
+1. [Python 3.11 veya daha yenisini](https://www.python.org/downloads/windows/) kurun. Kurulumda **Add Python to PATH** seçeneğini işaretleyin.
+2. Depoyu ZIP olarak indirip tamamen çıkarın.
 3. `run_windows.bat` dosyasına çift tıklayın.
-4. İlk çalıştırmada internet bağlantısı gerekir; gerekli Python paketleri otomatik kurulur.
-5. Tarayıcı otomatik açılmazsa `http://127.0.0.1:5000` adresini açın.
+4. İlk çalıştırmada paketler kurulur ve `http://127.0.0.1:5000` açılır.
 
-## Manuel çalıştırma
+Başlatma başarısız olursa proje klasöründeki `ua_admission_startup.log` dosyasının son bölümünü inceleyin. Bozuk sanal ortam algılanırsa başlatıcı `.venv` klasörünü otomatik yeniden oluşturur.
+
+## Manuel kurulum
 
 ```powershell
 py -3 -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.txt
-.venv\Scripts\python -m waitress --listen=127.0.0.1:5000 wsgi:app
+.venv\Scripts\python -m waitress --listen=127.0.0.1:5000 --call ua_admission:create_app
 ```
 
 Linux/macOS:
@@ -40,29 +46,51 @@ Linux/macOS:
 bash run_mac_linux.sh
 ```
 
-## Docker
+Docker:
 
 ```bash
 docker compose up --build
 ```
 
-## Test
+## Ekran görüntüleri
 
-```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-```
+Uygulama yerel olarak çalıştırıldıktan sonra ana sayfa ve analiz sonucu ekran görüntülerini `docs/screenshots/` klasörüne ekleyin. Önerilen adlar `home.png` ve `result.png` şeklindedir.
 
 ## Kullanım
 
-1. `.xlsx`, `.csv` veya izin verilen LPNU URL'sini seçin.
+1. `.xlsx`, `.csv` veya izin verilen bir LPNU URL'si seçin.
 2. Aday adını listedeki yazılışıyla girin.
 3. Bütçe ve kontrat kontenjanlarını girin.
-4. Simülasyon sayısını seçin ve analizi başlatın.
+4. Simülasyon sayısını seçip analizi başlatın.
 5. Sonuç ekranından CSV, JSON veya XLSX raporu indirin.
 
 Anonim örnek veri `data/example.csv` dosyasındadır.
 
-## Güvenlik
+## Test ve kalite
 
-URL içe aktarma yalnızca `config.py` içindeki izin verilen alan adlarında çalışır. Yükleme sınırı varsayılan olarak 30 MB'dir. Üretim ortamında `SECRET_KEY` çevre değişkenini değiştirin.
+```bash
+python -m pip install -r requirements-dev.txt
+python -m ruff check .
+python -m pytest -q
+```
+
+CI, Python 3.11–3.13 matrisi üzerinde çalışır. Pull request'lerde bağımlılık incelemesi, ana dalda ve haftalık olarak CodeQL analizi yürütülür.
+
+## Proje belgeleri
+
+- [Katkıda bulunma](CONTRIBUTING.md)
+- [Güvenlik politikası](SECURITY.md)
+- [Destek](SUPPORT.md)
+- [Yol haritası](ROADMAP.md)
+- [Mimari](docs/ARCHITECTURE.md)
+- [Sürüm kontrol listesi](docs/RELEASE_CHECKLIST.md)
+- [GitHub depo ayarları](docs/GITHUB_SETUP.md)
+- [Değişiklik günlüğü](CHANGELOG.md)
+
+## Gizlilik
+
+Gerçek aday verilerini issue, pull request veya test verisi olarak depoya göndermeyin. Yerel çalışma verileri `instance/` ve `uploads/` altında tutulur ve Git tarafından yok sayılır.
+
+## Lisans
+
+[MIT License](LICENSE)
