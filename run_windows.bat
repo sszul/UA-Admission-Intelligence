@@ -1,41 +1,55 @@
 @echo off
-setlocal
+setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
 title UA Admission Intelligence
 
-echo Python kontrol ediliyor...
+echo ============================================================
+echo UA Admission Intelligence 1.0.0
+echo ============================================================
+echo.
+
 where py >nul 2>&1
-if errorlevel 1 (
+if not errorlevel 1 (
+  set "PYTHON=py -3"
+) else (
   where python >nul 2>&1
   if errorlevel 1 (
-    echo Python bulunamadi. Python 3.11 veya ustunu kurun ve "Add Python to PATH" secenegini isaretleyin.
-    echo https://www.python.org/downloads/windows/
+    echo HATA: Python bulunamadi.
+    echo Python 3.11 veya yenisini https://www.python.org/downloads/ adresinden kurun.
+    echo Kurulumda Add Python to PATH secenegini isaretleyin.
+    echo.
     pause
     exit /b 1
   )
-  set PYTHON=python
-) else (
-  set PYTHON=py
+  set "PYTHON=python"
 )
 
 if not exist ".venv\Scripts\python.exe" (
   echo Sanal ortam olusturuluyor...
-  %PYTHON% -m venv .venv || goto ERROR
+  %PYTHON% -m venv .venv
+  if errorlevel 1 goto :error
 )
 
-echo Paketler kuruluyor veya guncelleniyor...
+echo Gerekli paketler kontrol ediliyor...
 ".venv\Scripts\python.exe" -m pip install --upgrade pip
-".venv\Scripts\python.exe" -m pip install -r requirements.txt || goto ERROR
+if errorlevel 1 goto :error
+".venv\Scripts\python.exe" -m pip install -r requirements.txt
+if errorlevel 1 goto :error
 
-echo Tarayici aciliyor...
+echo.
+echo Uygulama baslatiliyor: http://127.0.0.1:5000
+echo Bu pencereyi uygulamayi kapatmak istediginizde kapatin.
+echo.
 start "" http://127.0.0.1:5000
-
-echo Uygulama calisiyor. Kapatmak icin bu pencereyi kapatin.
 ".venv\Scripts\python.exe" -m waitress --listen=127.0.0.1:5000 wsgi:app
 exit /b 0
 
-:ERROR
-echo Kurulum veya calistirma sirasinda hata olustu.
+:error
+echo.
+echo KURULUM VEYA CALISTIRMA HATASI
+ echo Internet baglantinizi ve Python kurulumunu kontrol edin.
+echo Yukaridaki hata metninin ekran goruntusunu alin.
+echo.
 pause
 exit /b 1
